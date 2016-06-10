@@ -1,10 +1,12 @@
-# pre-requisites
+# Installation
+
+## pre-requisites
 * Docker(-machine).
 * Kubernetes client (`brew install kubectl`)
 
 For the workshop, we will use the 2 workshops VMs instead of a Docker machine.
 
-# installation
+## installation
 
 ```
 # vm creation
