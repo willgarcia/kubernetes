@@ -1,6 +1,12 @@
 # First Kubernetes cluster
 
-## 1. Create a script `src/start_kubernetes.sh` to automate this installation
+## 1. Create the cluster
+
+
+TODO:
+- update the authoring environment to add some docker images. search `docker-images.txt` files in https://github.com/ThoughtWorksInc/dockerprod-auth-env/
+- rebuild the different boxes: `vagrant up`, `vagrant package --output workshop[2].box`
+- Create a script `start_kubernetes.sh` to automate this installation, see following commands:
 
 ```
 docker stop $(docker ps -a -q)
@@ -15,7 +21,7 @@ done
 
 ## 2. Cluster status
 
-Explain the following commands:
+* Explain the following commands:
 
 ```
 kubectl cluster-info
