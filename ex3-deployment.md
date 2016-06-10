@@ -12,3 +12,4 @@ http://kubernetes.io/docs/user-guide/deploying-applications/
 * lifecycle management: restart policies, probes, health checks
 * schedules maintenance / downtime: rolling updates, rollbacking
 
+Commands to highlight: `kubectl apply/edit/scale/patch/replace`
