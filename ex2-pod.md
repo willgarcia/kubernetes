@@ -1,9 +1,9 @@
 * 1. Declarative configuration / POD definition
 
 TODO 
-* Basic of the format/ concept / relation with Kubectl 
-* A POD is a set of container, smallest unit of work in Kubernetes, one of the types/kind of object ... (show kind attribute in a template ..)
 
+    * Basic of the format/ concept / relation with Kubectl 
+    * A POD is a set of container, smallest unit of work in Kubernetes, one of the types/kind of object ... (show kind attribute in a template ..)
 
 * 2. One container 
 
