@@ -1,4 +1,4 @@
-* Create a script `src/start_kubernetes.sh` to automate this installation
+* 1. Create a script `src/start_kubernetes.sh` to automate this installation
 
 ```
 docker stop $(docker ps -a -q)
@@ -9,4 +9,20 @@ docker run -d --net=host --privileged gcr.io/google_containers/hyperkube:v1.0.1 
 until $(kubectl -s http://localhost:8080 cluster-info &> /dev/null); do
     sleep 1
 done
+```
+
+* 2. Describe the following commands:
+
+```
+kubectl cluster-info
+kubectl -s http://localhost:8080 cluster-info
+kubectl get events
+kubectl api-versions
+```
+
+* 3. Start Kube-UI
+
+```
+kubectl -s http://localhost:8080 create -f kube-ui-rc.yaml
+kubectl -s http://localhost:8080 create -f kube-ui-svc.yaml --validate=false
 ```
