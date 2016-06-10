@@ -1,4 +1,6 @@
-* 1. Create a script `src/start_kubernetes.sh` to automate this installation
+# First Kubernetes cluster
+
+## 1. Create a script `src/start_kubernetes.sh` to automate this installation
 
 ```
 docker stop $(docker ps -a -q)
@@ -11,7 +13,9 @@ until $(kubectl -s http://localhost:8080 cluster-info &> /dev/null); do
 done
 ```
 
-* 2. Describe the following commands:
+## 2. Cluster status
+
+Explain the following commands:
 
 ```
 kubectl cluster-info
@@ -20,7 +24,7 @@ kubectl get events
 kubectl api-versions
 ```
 
-* 3. Start Kube-UI
+## 3. Start Kube-UI
 
 ```
 kubectl -s http://localhost:8080 create -f kube-ui-rc.yaml
