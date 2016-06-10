@@ -1,4 +1,4 @@
-# Create a POD / Kubectl CLI
+# Create a POD
 
 ## 1. Declarative configuration / POD definition
 
@@ -7,19 +7,17 @@ TODO
     * Basic of the format/ concept / relation with Kubectl 
     * A POD is a set of container, smallest unit of work in Kubernetes, one of the types/kind of object ... (show kind attribute in a template ..)
 
-See http://kubernetes.io/docs/user-guide/walkthrough/#volumes
-
 ## 2. One container 
 
 Start 1 container in 1 POD
 
-TODO Nginx example
+TODO: Nginx example
 
 ## 3. Multi-containers
 
 Start N containers in 1 POD
 
-TOOD Example with shop-app/catalog/review
+TODO: Example with shop-app/catalog/review
 
 See current example with Busmeme:
 
