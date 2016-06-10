@@ -1,19 +1,19 @@
 # Create a POD
 
-* 1. Declarative configuration / POD definition
+## 1. Declarative configuration / POD definition
 
 TODO 
 
     * Basic of the format/ concept / relation with Kubectl 
     * A POD is a set of container, smallest unit of work in Kubernetes, one of the types/kind of object ... (show kind attribute in a template ..)
 
-* 2. One container 
+## 2. One container 
 
 Start 1 container in 1 POD
 
 TODO Nginx example
 
-* 3. Multi-containers
+## 3. Multi-containers
 
 Start N containers in 1 POD
 
