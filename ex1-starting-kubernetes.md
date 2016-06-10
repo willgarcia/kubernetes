@@ -36,3 +36,4 @@ kubectl api-versions
 kubectl -s http://localhost:8080 create -f kube-ui-rc.yaml
 kubectl -s http://localhost:8080 create -f kube-ui-svc.yaml --validate=false
 ```
+## 4. Explain/show Kbe-UI navigation
