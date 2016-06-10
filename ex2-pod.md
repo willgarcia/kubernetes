@@ -16,15 +16,28 @@ See kubectl info CLI
 
 Start 1 container in 1 POD
 
+Basic configuration:
+* environment variables
+* port
+* names
+
 TODO: Nginx example
 
 ## 3. Multi-containers
 
 Start N containers in 1 POD
 
+Basic configuration
+* volumes
+* "link" with an other container in the same POD
+
+All the containers inside a POD are under the same network
+
 TODO: Example with shop-app/catalog/review
 
-See current example with Busmeme:
+See current example with Busmeme: `busmeme-pod.yml`
+
+
 
 ```
 kubectl delete pod busmeme
