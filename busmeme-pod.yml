@@ -12,8 +12,15 @@ spec:
      - name: mongo
        containerPort: 27017
        hostPort: 27017
+     volumeMounts:
+     - name: mongo-persistent-storage
+       mountPath: /data/db
    - image: minillinim/busmemegenerator
      name: web
+     ports:
+     - hostPort: 3000
+       containerPort: 3000
+       name: http-server
      env:
      - name: NODE_ENV
        value: "production"
@@ -22,18 +29,12 @@ spec:
      - name: TL_PASSWORD
        value: "pASSwORD"
      - name: PORT
-       value: "80"
+       value: "3000"
      - name: BM_MONGODB_URI
        value: "mongodb://localhost/app-toto"
      - name: BM_ADMIN_TOKEN
        value: "test"
    volumes:
      - name: mongo-persistent-storage
-       emptyDir: {}
-       volumeMounts:
-         - name: mongo-persistent-storage
-           mountPath: /data/db
-   ports:
-     - hostPort: 80
-       containerPort: 80
-       name: http-server
+       hostPath:
+         path: /data/db
