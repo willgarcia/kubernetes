@@ -1,0 +1,46 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: busmeme-deployment
+spec:
+  replicas: 2 # tells deployment to run 2 pods matching the template
+  template: # create pods using pod definition in this template
+    metadata:
+      # unlike pod-nginx.yaml, the name is not included in the meta data as a unique name is
+      # generated from the deployment name
+      labels:
+        app: busmeme
+    spec:
+      containers:
+      - image: mongo
+        name: mongo
+        ports:
+        - name: mongo
+          containerPort: 27017
+          hostPort: 27017
+        volumeMounts:
+        - name: mongo-persistent-storage
+          mountPath: /data/db
+      - image: minillinim/busmemegenerator
+        name: web
+        ports:
+        - hostPort: 3000
+          containerPort: 3000
+          name: http-server
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: TL_USER
+          value: "uSERnAME"
+        - name: TL_PASSWORD
+          value: "pASSwORD"
+        - name: PORT
+          value: "3000"
+        - name: BM_MONGODB_URI
+          value: "mongodb://localhost/app-toto"
+        - name: BM_ADMIN_TOKEN
+          value: "test"
+      volumes:
+        - name: mongo-persistent-storage
+          hostPath:
+            path: /data/db
