@@ -21,10 +21,21 @@ kubectl get events
 kubectl api-versions
 ```
 
-## 3. Start Kube-UI
+## 3. Start Kube-dashboard
 
-```
-kubectl -s http://localhost:8080 create -f kube-ui-rc.yaml
-kubectl -s http://localhost:8080 create -f kube-ui-svc.yaml --validate=false
-```
-## 4. Explain/show Kbe-UI navigation
+
+See: http://kubernetes.io/docs/user-guide/ui/ + http://kubernetes.io/docs/user-guide/ui-access/
+
+
+
+Explain concept of:
+
+### addons (https://github.com/kubernetes/kubernetes/blob/release-1.2/cluster/saltbase/salt/kube-addons/kube-addons.sh)
+
+
+
+### namespaces
+
+http://kubernetes.io/docs/admin/namespaces/ / Limitate visibility between groups inside the cluster, group/user management
+
+always add option --namespace

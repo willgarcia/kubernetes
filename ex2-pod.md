@@ -31,8 +31,6 @@ kubectl pods | grep nginx
 `kubectl describe pod my-nginx-erhhc`
 
 
-
-
 ```
 Name:		my-nginx-erhhc
 Namespace:	default
@@ -79,13 +77,24 @@ By reading these details, we understand that Kubernetes:
 * exposed the ports' container on 80/TCP
 *
 
-3.
+3. Access the application
 
 Go to: `http://localhost:8080/api/v1/proxy/namespaces/kube-system/services/kube-ui/#/dashboard/pods/my-nginx-erhhc`
 
 * The pod my-nginx-* should be running on port 80
 * Nginx should be accessible on (http://localhost:8080)[http://localhost:8080]
 
+4. Volumes
+
+see /data/db ...
+
+5. Simulate a failure
+
+docker kill mongo
+
+kubectl get rc,svc,pods,nodes
+
+wait for the container to spin up automatically
 
 
 Basic configuration:
@@ -98,6 +107,11 @@ TODO: Nginx example
 ## 3. Multi-containers
 
 Start N containers in 1 POD
+
+
+kubectl delete pod busmeme
+kubectl -s http://localhost:8080 create -f busmeme-pod.yml
+kubectl describe pod busmeme
 
 Basic configuration
 * volumes
@@ -113,4 +127,6 @@ See current example with Busmeme: `busmeme-pod.yml`
 kubectl delete pod busmeme
 kubectl -s http://localhost:8080 create -f busmeme-pod.yml
 kubectl describe pod busmeme
+
+#kubectl logs busmeme mongo or web
 ```
