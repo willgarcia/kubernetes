@@ -14,7 +14,5 @@ DOCKER_MACHINE_NAME=kubetest
 docker-machine rm -f $DOCKER_MACHINE_NAME
 docker-machine create --driver virtualbox  --virtualbox-memory 4096 $DOCKER_MACHINE_NAME
 eval "$(docker-machine env kubetest)"
-
-# ssh tunneling (what is??)
 docker-machine ssh $DOCKER_MACHINE_NAME -f -N -L "8080:localhost:8080"
 ```

@@ -11,3 +11,4 @@ Examples
 * https://github.com/kubernetes/kubernetes/tree/master/examples
 * https://github.com/kubernetes/kubernetes/tree/release-1.2/examples/guestbook/
 
+https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG.md#action-required
