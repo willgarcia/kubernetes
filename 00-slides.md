@@ -9,6 +9,7 @@ See https://www.digitalocean.com/community/tutorials/an-introduction-to-kubernet
 # Architecture
 
 See http://vmturbo.com/about-virtualization/forget-k9-its-time-for-k8-k8s-that-is-a-kubernetes-primer-part-i/
+https://github.com/kubernetes/kubernetes/blob/release-1.2/docs/design/architecture.md#the-kubernetes-node
 
 K8S = Kubernetes
 

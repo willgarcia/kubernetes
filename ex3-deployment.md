@@ -13,16 +13,27 @@ Edit the *.yml and update the version (copy this file) :
 And run
 
 `kubectl -s http://localhost:8080 apply -f busmeme-pod.yml`
+`kubectl -s http://localhost:8080 delete busmeme-pod`
+
 
 Check the version of your container in the web UI or with docker ps
 
 Note: pod updates may not change fields other than `containers[*].image` or `spec.activeDeadlineSeconds`
 
-## Rolling up
+## Rep controller
+
+`kubectl -s http://localhost:8080 create -f busmeme-controller.yml`
+
 
 Replications needed : pod “replicas” are running at any one time
 
-see: http://kubernetes.io/docs/user-guide/replication-controller/#what-is-a-replication-controller
+http://kubernetes.io/docs/user-guide/labels/#motivation
+http://kubernetes.io/docs/user-guide/replication-controller/#what-is-a-replication-controller
+
+## Rolling update
+
+http://kubernetes.io/docs/user-guide/update-demo/
+
 
 ## Replication / scaling / load balancing
 
