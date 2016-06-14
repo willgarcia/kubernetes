@@ -10,6 +10,11 @@ TODO:
 DONE
 - Create a script `start_kubernetes.sh` to automate this installation
 
+http://kubernetes.io/docs/getting-started-guides/docker-multinode/master/
+http://kubernetes.io/docs/getting-started-guides/docker-multinode/worker/
+http://kubernetes.io/docs/admin/node/#what-is-a-node
+
+
 ## 2. Cluster status
 
 * Explain the following commands:

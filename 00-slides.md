@@ -23,6 +23,8 @@ Components:
 # Services
 
 * Kubelet Service
+
+- http://kubernetes.io/docs/admin/kubelet/
 * Proxy Service
 * Kubernetes Work Units
   * Pods
