@@ -1,2 +1,4 @@
+.idea/
 .vagrant/
+Vagrantfile
 second_host/
