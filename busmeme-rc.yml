@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ReplicationController
 metadata:
-  name: busmeme-deployment
+  name: busmeme-rc
   labels:
     name: web
 spec:

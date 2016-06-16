@@ -1,0 +1,44 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: lbapp-service
+  labels:
+    name: weblb
+spec:
+  selector:
+    name: weblb
+  ports:
+  - port: 9999
+    targetPort: 9999
+    nodePort: 30062
+    protocol: TCP
+  type: NodePort
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: lbapp-rc
+  labels:
+    name: weblb
+spec:
+  replicas: 2
+  selector:
+    name: weblb
+  template:
+    metadata:
+      labels:
+        name: weblb
+    spec:
+      containers:
+      - image: willgarcia/lb-app
+        name: weblb
+        ports:
+        - containerPort: 9999
+        livenessProbe:
+          exec:
+            command:
+              - cat
+              - /tmp/lbapp.lock
+          initialDelaySeconds: 15
+          timeoutSeconds: 1
+        name: liveness
