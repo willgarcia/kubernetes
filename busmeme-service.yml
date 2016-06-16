@@ -1,0 +1,15 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: busmeme-service
+  labels:
+    name: web
+spec:
+  selector:
+    name: web
+  ports:
+  - port: 4000
+    targetPort: 3000
+    nodePort: 30061
+    protocol: TCP
+  type: NodePort
