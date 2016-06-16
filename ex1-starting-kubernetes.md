@@ -15,7 +15,23 @@ http://kubernetes.io/docs/getting-started-guides/docker-multinode/worker/
 http://kubernetes.io/docs/admin/node/#what-is-a-node
 
 
-## 2. Cluster status
+## 3. Clients installation
+
+### Kube-dashboard
+
+See: http://kubernetes.io/docs/user-guide/ui/ + http://kubernetes.io/docs/user-guide/ui-access/
+
+docker run --net=host --rm -it gcr.io/google_containers/kubernetes-dashboard-amd64:v1.1.0-beta3 --apiserver-host http://192.168.33.10:8080
+
+Go to `http://localhost:9090/#/workload`
+
+TODO
+kubectl run --port=9090 --image=gcr.io/google_containers/kubernetes-dashboard-amd64:v1.1.0-beta3 mydashboard -- --apiserver-host http://192.168.33.10:8080
+
+### Kubectl CLI
+
+Example of basic commands:
+
 
 * Explain the following commands:
 
@@ -24,23 +40,16 @@ kubectl cluster-info
 kubectl -s http://localhost:8080 cluster-info
 kubectl get events
 kubectl api-versions
+kubectl version
+kubectl get rc,svc,pods --all-namespaces=true -o wide
 ```
 
-## 3. Start Kube-dashboard
+http://192.168.33.10:8080/
 
+see http://kubernetes.io/docs/user-guide/kubectl/kubectl/
 
-See: http://kubernetes.io/docs/user-guide/ui/ + http://kubernetes.io/docs/user-guide/ui-access/
+Accessing the API / Web UI via a reverse proxy:
 
+`kubectl -s http://192.168.33.10:8080/ proxy --port=8080`
 
-
-Explain concept of:
-
-### addons (https://github.com/kubernetes/kubernetes/blob/release-1.2/cluster/saltbase/salt/kube-addons/kube-addons.sh)
-
-
-
-### namespaces
-
-http://kubernetes.io/docs/admin/namespaces/ / Limitate visibility between groups inside the cluster, group/user management
-
-always add option --namespace
+http://kubernetes.io/docs/user-guide/accessing-the-cluster/#accessing-the-cluster-api

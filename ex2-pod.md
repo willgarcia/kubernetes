@@ -79,7 +79,7 @@ By reading these details, we understand that Kubernetes:
 
 3. Access the application
 
-Go to: `http://localhost:8080/api/v1/proxy/namespaces/kube-system/services/kube-ui/#/dashboard/pods/my-nginx-erhhc`
+Go to: `http://localhost:9090`
 
 * The pod my-nginx-* should be running on port 80
 * Nginx should be accessible on (http://localhost:8080)[http://localhost:8080]
@@ -101,6 +101,13 @@ Basic configuration:
 * environment variables
 * port
 * names
+
+
+6. Execute a command inside a container
+
+`kubectl exec [POD-NAME] date --namespace=kube-system`
+
+see http://kubernetes.io/docs/user-guide/kubectl/kubectl_exec/
 
 TODO: Nginx example
 
@@ -129,4 +136,11 @@ kubectl -s http://localhost:8080 create -f busmeme-pod.yml
 kubectl describe pod busmeme
 
 #kubectl logs busmeme mongo or web
+
+ kubectl logs -f  busmeme mongo or web
 ```
+
+
+Attach the stdout of a container:
+
+ kubectl attach -i [pod-name]
