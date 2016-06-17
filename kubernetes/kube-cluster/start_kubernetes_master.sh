@@ -9,16 +9,33 @@ export FLANNEL_VERSION=0.5.5
 export FLANNEL_IFACE=eth1
 export FLANNEL_IPMASQ=true
 
-docker daemon -H unix:///var/run/docker-bootstrap.sock\
+####
+## TODO: kubectl installation, move this code in the dockerprod-auth-env -> provisionning scripts
+wget http://storage.googleapis.com/kubernetes-release/release/v${K8S_VERSION}/bin/linux/amd64/kubectl
+chmod 755 kubectl
+mv kubectl /usr/local/bin
+####
+
+####
+## TODO: bridge-utils installation, move this code in the dockerprod-auth-env -> provisionning scripts
+apt-get update
+apt-get install bridge-utils -y
+####
+
+CONTAINER_NAME_PREFIX="kubernetes-"
+KUBERNETES_HOSTNAME="unix:///var/run/docker-bootstrap.sock"
+
+docker daemon -H ${KUBERNETES_HOSTNAME}\
     -p /var/run/docker-bootstrap.pid\
     --iptables=false\
     --ip-masq=false\
     --bridge=none\
     --graph=/var/lib/docker-bootstrap 2> /var/log/docker-bootstrap.log 1> /dev/null &
 
-docker -H unix:///var/run/docker-bootstrap.sock\
+docker -H ${KUBERNETES_HOSTNAME}\
     run\
-        -d\
+        --name=${CONTAINER_NAME_PREFIX}etcd-1\
+        --detach\
         --net=host\
         gcr.io/google_containers/etcd-amd64:${ETCD_VERSION} /usr/local/bin/etcd\
              --listen-client-urls=http://127.0.0.1:4001,http://${MASTER_IP}:4001\
@@ -26,30 +43,31 @@ docker -H unix:///var/run/docker-bootstrap.sock\
              --data-dir=/var/etcd/data
 
 docker\
-    -H unix:///var/run/docker-bootstrap.sock\
+    -H ${KUBERNETES_HOSTNAME}\
     run\
+        --name=${CONTAINER_NAME_PREFIX}etcd-2\
         --net=host\
              gcr.io/google_containers/etcd-amd64:${ETCD_VERSION}\
             etcdctl set /coreos.com/network/config '{ "Network": "10.1.0.0/16" }'
 
 service docker stop
 
-FLANNEL_CONTAINER_ID=$(docker -H unix:///var/run/docker-bootstrap.sock run\
-     -d\
-     --net=host\
-     --privileged\
-     -v /dev/net:/dev/net\
-     quay.io/coreos/flannel:${FLANNEL_VERSION} /opt/bin/flanneld\
-         --ip-masq=${FLANNEL_IPMASQ}\
-         --iface=${FLANNEL_IFACE}
+FLANNEL_CONTAINER_ID=$(
+    docker -H ${KUBERNETES_HOSTNAME} run\
+    --detach\
+    --net=host\
+    --privileged\
+    -v /dev/net:/dev/net\
+        quay.io/coreos/flannel:${FLANNEL_VERSION} /opt/bin/flanneld\
+            --ip-masq=${FLANNEL_IPMASQ}\
+            --iface=${FLANNEL_IFACE}
 )
 
-docker -H unix:///var/run/docker-bootstrap.sock exec ${FLANNEL_CONTAINER_ID} cat /run/flannel/subnet.env | grep 'FLANNEL_SUBNET\|FLANNEL_MTU' > /etc/default/docker
+docker -H ${KUBERNETES_HOSTNAME}\
+    exec\
+        ${FLANNEL_CONTAINER_ID} cat /run/flannel/subnet.env | grep 'FLANNEL_SUBNET\|FLANNEL_MTU' > /etc/default/docker
 echo "DOCKER_OPTS=\"--bip=\${FLANNEL_SUBNET} --mtu=\${FLANNEL_MTU}\"" >> /etc/default/docker
 
-
-apt-get update
-apt-get install bridge-utils -y
 sudo /sbin/ifconfig docker0 down
 sudo brctl delbr docker0
 service docker start
@@ -63,7 +81,7 @@ docker run\
      --net=host\
      --privileged=true\
      --pid=host\
-     -d\
+     --detach\
      gcr.io/google_containers/hyperkube-amd64:v${K8S_VERSION}     /hyperkube kubelet\
          --allow-privileged=true\
          --api-servers=http://localhost:8080\
@@ -73,10 +91,3 @@ docker run\
          --hostname-override=127.0.0.1\
          --config=/etc/kubernetes/manifests-multi\
          --containerized
-
-#    --cluster-dns=10.0.0.10
-#    --cluster-domain=cluster.local
-
-wget http://storage.googleapis.com/kubernetes-release/release/v${K8S_VERSION}/bin/linux/amd64/kubectl
-chmod 755 kubectl
-mv kubectl /usr/local/bin

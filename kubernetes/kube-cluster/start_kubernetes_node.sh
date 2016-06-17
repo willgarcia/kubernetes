@@ -7,8 +7,17 @@ export FLANNEL_VERSION=0.5.5
 export FLANNEL_IFACE=eth1
 export FLANNEL_IPMASQ=true
 
+####
+## TODO: bridge-utils installation, move this code in the dockerprod-auth-env -> provisionning scripts
+apt-get update
+apt-get install bridge-utils -y
+####
+
+readonly CONTAINER_NAME_PREFIX="kubernetes-"
+readonly KUBERNETES_HOSTNAME="unix:///var/run/docker-bootstrap.sock"
+
 docker daemon\
-    -H unix:///var/run/docker-bootstrap.sock\
+    -H ${KUBERNETES_HOSTNAME}\
     -p /var/run/docker-bootstrap.pid\
     --iptables=false\
     --ip-masq=false\
@@ -17,28 +26,31 @@ docker daemon\
 
 service docker stop
 
-FLANNEL_CONTAINER_ID=$(docker -H unix:///var/run/docker-bootstrap.sock run\
-    -d\
-    --net=host\
-    --privileged\
-    -v\
-    /dev/net:/dev/net\
-    quay.io/coreos/flannel:${FLANNEL_VERSION}     /opt/bin/flanneld\
-        --ip-masq=${FLANNEL_IPMASQ}\
-        --etcd-endpoints=http://${MASTER_IP}:4001\
-        --iface=${FLANNEL_IFACE}
+FLANNEL_CONTAINER_ID=$(
+    docker -H ${KUBERNETES_HOSTNAME}\
+        run\
+            --name=${CONTAINER_NAME_PREFIX}flannel\
+            --detach\
+            --net=host\
+            --privileged\
+            -v /dev/net:/dev/net\
+            quay.io/coreos/flannel:${FLANNEL_VERSION} /opt/bin/flanneld\
+                --ip-masq=${FLANNEL_IPMASQ}\
+                --etcd-endpoints=http://${MASTER_IP}:4001\
+                --iface=${FLANNEL_IFACE}
 )
 
-docker -H unix:///var/run/docker-bootstrap.sock exec ${FLANNEL_CONTAINER_ID} cat /run/flannel/subnet.env | grep 'FLANNEL_SUBNET\|FLANNEL_MTU' > /etc/default/docker
+docker -H ${KUBERNETES_HOSTNAME}\
+    exec\
+        ${FLANNEL_CONTAINER_ID} cat /run/flannel/subnet.env | grep 'FLANNEL_SUBNET\|FLANNEL_MTU' > /etc/default/docker
 echo "DOCKER_OPTS=\"--bip=\${FLANNEL_SUBNET} --mtu=\${FLANNEL_MTU}\"" >> /etc/default/docker
 
-apt-get update
-apt-get install bridge-utils -y
 sudo /sbin/ifconfig docker0 down
 sudo brctl delbr docker0
 service docker start
 
 docker run\
+     --name=${CONTAINER_NAME_PREFIX}kubelet\
      --volume=/:/rootfs:ro\
      --volume=/sys:/sys:ro\
      --volume=/dev:/dev\
@@ -48,7 +60,7 @@ docker run\
      --net=host\
      --privileged=true\
      --pid=host\
-     -d\
+     --detach\
      gcr.io/google_containers/hyperkube-amd64:v${K8S_VERSION}\
          /hyperkube kubelet\
          --allow-privileged=true\
@@ -59,7 +71,8 @@ docker run\
          --containerized
 
 docker run\
-    -d\
+    --name=${CONTAINER_NAME_PREFIX}proxy\
+    --detach\
     --net=host\
     --privileged\
     gcr.io/google_containers/hyperkube-amd64:v${K8S_VERSION}     /hyperkube proxy\
