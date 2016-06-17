@@ -101,3 +101,15 @@ http://kubernetes.io/docs/user-guide/production-pods/#liveness-and-readiness-pro
 # Resource management
 
 http://kubernetes.io/docs/user-guide/production-pods/#resource-management
+
+
+# Secrets
+
+
+ kubectl create secret generic lbapp-db --from-literal='lbapp-dbuser=produser' --from-literal='lbapp-dbpwd=twkubernetes'
+ kubectl get secrets
+
+
+
+
+https://github.com/kubernetes/kubernetes/blob/release-1.3/docs/design/secrets.md

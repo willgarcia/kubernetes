@@ -32,6 +32,27 @@ http://kubernetes.io/docs/user-guide/replication-controller/#what-is-a-replicati
 
 ## Rolling update
 
+kubectl create -f lbapp-svc.yml
+
+## release 1
+
+ kubectl create -f lbapp-v1-deployment.yml
+ kubectl rollout history deployment/lbapp-deployment
+
+
+ ### release 2 (update)
+ Change the label:
+
+kubectl apply -f lbapp-v2-deployment.yml
+kubectl rollout history deployment/lbapp-deployment
+
+### rollback
+
+ kubectl rollout undo deployment/lbapp-deployment --to-revision=1
+
+
+
+
 http://kubernetes.io/docs/user-guide/update-demo/
 
 

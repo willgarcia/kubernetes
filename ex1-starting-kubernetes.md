@@ -2,7 +2,6 @@
 
 ## 1. Create the cluster
 
-
 TODO:
 - update the authoring environment to add some docker images. search `docker-images.txt` files in https://github.com/ThoughtWorksInc/dockerprod-auth-env/
 - rebuild the different boxes: `vagrant up`, `vagrant package --output workshop[2].box`
