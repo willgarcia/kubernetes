@@ -1,0 +1,20 @@
+# kubernetes master docker images - 0.0.0.0
+gcr.io/google_containers/hyperkube-amd64:v1.2.1
+gcr.io/google_containers/pause:2.0
+
+# kubernetes master docker images - unix socket
+gcr.io/google_containers/etcd-amd64:2.2.1
+quay.io/coreos/flannel:0.5.5
+
+# kubernetes node docker images - 0.0.0.0
+gcr.io/google_containers/hyperkube-amd64:v1.2.1
+
+# kubernetes node docker images - unix socket
+quay.io/coreos/flannel:0.5.5
+
+# temporary exercises images
+## TODO: replace exercises using the busmemegenerator app by the shop-app app
+## TODO: build & push these images in the VM internal registries, instead of download them for Docker hub
+willgarcia/lb-app
+willgarcia/busmemegenerator
+
