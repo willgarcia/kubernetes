@@ -34,11 +34,3 @@ spec:
         name: weblb
         ports:
         - containerPort: 9999
-        livenessProbe:
-          exec:
-            command:
-              - cat
-              - /tmp/lbapp.lock
-          initialDelaySeconds: 15
-          timeoutSeconds: 1
-        name: liveness

@@ -107,7 +107,7 @@ Client Version: version.Info{Major:"1", Minor:"2", GitVersion:"v1.2.1", GitCommi
 Server Version: version.Info{Major:"1", Minor:"2", GitVersion:"v1.2.1", GitCommit:"50809107cd47a1f62da362bccefdd9e6f7076145", GitTreeState:"clean"}
 ```
 
-For more advanced details about the cluster startup, run:
+For more details about the cluster events happening during the startup process, run:
 
 ```
 $ kubectl get events
@@ -118,7 +118,7 @@ $ kubectl get events
 Exercise 3 of 13 - Node status
 ------------------------------
 
-From the VM named `workshop-second-host`, try one of the previous commands but with the additional option `-s`.
+From the VM named `workshop-second-host`, run one of the previous commands  with the Kubectl option `-s`.
 Example:
 
 ```
@@ -169,7 +169,7 @@ And go to `http://localhost:9090/`
 Exercise 5 of 13 - Create a pod, mono-container
 -----------------------------------------------
 
-TODO: this example is not working
+TODO: this example is not working properly
 
 Start 1 container in 1 POD:
 
@@ -243,8 +243,10 @@ $ kubectl describe pod busmeme
 ```
 
 <div class="info-box information">
-* All the containers inside a POD share the same network network
-* Within a Pod, each container can reach an other container ports on localhost
+    <ul>
+        <li>All the containers inside a POD share the same network network</li>
+        <li>Within a Pod, each container can reach an other container ports on localhost</li>
+    </ul>
 </div>
 
 Expose the POD outside the cluster:
@@ -286,7 +288,7 @@ $ kubectl exec [POD-NAME] echo $PATH
 Exercise 8 of 13 - Update a POD
 -------------------------------
 
-From the [interface](http://localhost:9090), try to change the Docker image.
+From the [Kubernetes dashboard](http://localhost:9090), try to change the Docker image.
 After an automatic redeployment, the change should be reflected "immedialy".
 
 Apply now the same change by editing the file `busmeme-rc.yml` 
@@ -303,17 +305,22 @@ Note: pod updates may not change fields other than `containers[*].image` or `spe
 Exercise 9 of 13 - Rolling updates and rollbacks
 ------------------------------------------------
 
+    0. Create a new service for the application `LBAPP`
 
+```
 kubectl create -f lbapp-svc.yml
+```
 
-1. Release 1
+    1. Release 1
 
 ```
 $ kubectl create -f lbapp-v1-deployment.yml
 $ kubectl rollout history deployment/lbapp-deployment
 ```
 
-2. Release 2 (update)
+The application LBAPP (accessible on http://localhost:9999) should display the current version of the application (version 1).
+
+    2. Release 2 (update)
  
 Change the label:
 
@@ -322,11 +329,14 @@ $ kubectl apply -f lbapp-v2-deployment.yml
 $ kubectl rollout history deployment/lbapp-deployment
 ```
 
-3. Rollback
+The application LBAPP (accessible on http://localhost:9999) should display the current version of the application (version 2).
+
+    3. Rollback
 
 ```
 $ kubectl rollout undo deployment/lbapp-deployment --to-revision=1
 ```
+The application LBAPP has been rollbacked to first version. Now the application should display version 1 as the current version.
 
 <a name="exercise10" />
 
@@ -350,6 +360,22 @@ Session Affinity:	None
 No events.
 ```
 
+The presence of the attributes `replicas: 2` in the template `lbapp-v1-deployment.yml` ensures that the cluster always run 2 identical PODS containing our application.
+
+The endpoints shown above are the internal IP inside the cluster for each replica.
+
+Run the following command to delete one of the POD:
+
+```
+$ kubectl delete pod [POD-NAME]
+```
+
+While this pod is terminating, an other one is spawning, Kubernetes being responsible to maintain the desirated state of the cluster.
+
+The POD selection is controlled / load-balanced by Kubernetes depending on the type of POD configured.
+
+The application LBAPP should display randomly these endpoints, which demonstrate that our 2 PODs are in use.
+
 <a name="exercise11" />
 
 Exercise 11 of 13 - Secrets
@@ -359,6 +385,16 @@ Exercise 11 of 13 - Secrets
 $ kubectl create secret generic lbapp-db --from-literal='lbapp-dbuser=produser' --from-literal='lbapp-dbpwd=twkubernetes'
 $ kubectl get secrets
 ```
+
+To demonstrate that the secrets have been transmitted to the POD, restart the POD ...
+
+```
+$ kubectl create -f ./kubernetes/kube-templates/secrets/lb-app.yml
+
+```
+
+The application LBAPP (accessible on http://localhost:9999) should display the secrets in plain text.
+
 
 <a name="exercise12" />
 
@@ -411,7 +447,7 @@ livenessProbe:
    name: liveness
 ```
 
-File is missing, as a result the pod is flagged as unhealthy and after a certain amount of retries, its status goes from Running to CrashLoopBackOff
+File `/tmp/lbapp.lock` is intentionally missing. As a result, the pod is flagged as unhealthy and after a certain amount of retries, its status goes from `Running` to `CrashLoopBackOff`
 
 ```
   FirstSeen	LastSeen	Count	From				SubobjectPath			Type		Reason		Message
