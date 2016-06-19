@@ -4,14 +4,8 @@ export MASTER_IP=192.168.33.10
 export K8S_VERSION=1.2.1
 export ETCD_VERSION=2.2.1
 export FLANNEL_VERSION=0.5.5
-export FLANNEL_IFACE=eth1
+export FLANNEL_IFACE=eth0
 export FLANNEL_IPMASQ=true
-
-####
-## TODO: bridge-utils installation, move this code in the dockerprod-auth-env -> provisionning scripts
-apt-get update
-apt-get install bridge-utils -y
-####
 
 readonly CONTAINER_NAME_PREFIX="kubernetes-"
 readonly KUBERNETES_HOSTNAME="unix:///var/run/docker-bootstrap.sock"
@@ -24,7 +18,7 @@ docker daemon\
     --bridge=none\
     --graph=/var/lib/docker-bootstrap 2> /var/log/docker-bootstrap.log 1> /dev/null &
 
-service docker stop
+#service docker stop
 
 FLANNEL_CONTAINER_ID=$(
     docker -H ${KUBERNETES_HOSTNAME}\
@@ -45,8 +39,6 @@ docker -H ${KUBERNETES_HOSTNAME}\
         ${FLANNEL_CONTAINER_ID} cat /run/flannel/subnet.env | grep 'FLANNEL_SUBNET\|FLANNEL_MTU' > /etc/default/docker
 echo "DOCKER_OPTS=\"--bip=\${FLANNEL_SUBNET} --mtu=\${FLANNEL_MTU}\"" >> /etc/default/docker
 
-sudo /sbin/ifconfig docker0 down
-sudo brctl delbr docker0
 service docker start
 
 docker run\
