@@ -12,32 +12,6 @@ You will learn about:
 * Self-healing infrasctructure
 * Management of secrets and configuration for containers
 
-
-# TODO
-
-Update the authoring environment:
-
-* add the docker images listed in `./kubernetes/docker-images.txt`. Update the 2 `docker-images.txt` files in https://github.com/ThoughtWorksInc/dockerprod-auth-env/
-* provision the VMs with `./kube-cluster/kubernetes_client.sh`
-* verify/add VBox port mappings on the master VM (8080, 9090, 30061 ?)
-* rebuild the different boxes: `vagrant up`, `vagrant package --output workshop[2].box`
-
-Module:
-* create the script up.sh (clean all running containers)
-* create the script down.sh (clean all Kubernetes running containers, stop the cluster, restart Docker with the default configuration)
-* take inspiration of other modules for scripts organization (source/export common variables and other scripts, ...)
-* replace examples with the busmeme app by examples with the shop-app app
-
-Start
------
-
-Configure the environment for **Module 6 - Start state**
-
-```sh
-cd ~/topics/start/module6
-./up.sh
-```
-
 <a name="exercise1" />
 
 Exercise 1 of 13 - Start Kubernetes
