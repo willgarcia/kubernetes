@@ -41,7 +41,7 @@ spec:
         - name: BM_MONGODB_URI
           value: "mongodb://localhost/app-toto"
         - name: BM_ADMIN_TOKEN
-          value: "test"
+          value: "testw"
       volumes:
         - name: mongo-persistent-storage
           hostPath:

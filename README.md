@@ -12,73 +12,63 @@ You will learn about:
 * Self-healing infrasctructure
 * Management of secrets and configuration for containers
 
-<a name="exercise1" />
-
-Exercise 1 of 13 - Start Kubernetes
+Step 1 of 13 - Start Kubernetes
 -----------------------------------
 
-In the VM named `workshop`, run the following script:
-
-  * `./kube-cluster/start_kubernetes_master.sh`
-
-Wait for the end of the previous installation. Then, in the VM named `workshop-second-host`, run the following script:
-
-  * `./kube-cluster/start_kubernetes_node.sh`
-
-Verify if the Kubernetes API is accessible:
+This tutorial uses the Docker for Mac - edge version to run the cluster:
 
 ```
-$ curl http://localhost:8080
-{
-  "paths": [
-    "/api",
-    "/api/v1",
-    "/apis",
-    "/apis/autoscaling",
-    "/apis/autoscaling/v1",
-    "/apis/batch",
-    "/apis/batch/v1",
-    "/apis/extensions",
-    "/apis/extensions/v1beta1",
-    "/healthz",
-    "/healthz/ping",
-    "/logs/",
-    "/metrics",
-    "/resetMetrics",
-    "/swagger-ui/",
-    "/swaggerapi/",
-    "/ui/",
-    "/version"
-  ]
-}
+kubectl config get-contexts
+kubectl config use-context docker-for-deskto
 ```
 
-or visit [http://192.168.33.10:8080/](http://192.168.33.10:8080)
-
-<a name="exercise2" />
-
-Exercise 2 of 13 - Master status
+Step 2 of 13 - Master status
 --------------------------------
 
-From the VM named `workshop`, check the status of our new Kubernetes cluster with the `kubectl` CLI tool:
+Check the status of our new Kubernetes cluster with the `kubectl` CLI tool:
 
 ```
 $ kubectl cluster-info
-Kubernetes master is running at http://localhost:8080
+Kubernetes master is running at https://localhost:6443
+KubeDNS is running at https://localhost:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
 ```
 
 ```
 $ kubectl api-versions
+admissionregistration.k8s.io/v1beta1
+apiextensions.k8s.io/v1beta1
+apiregistration.k8s.io/v1beta1
+apps/v1
+apps/v1beta1
+apps/v1beta2
+authentication.k8s.io/v1
+authentication.k8s.io/v1beta1
+authorization.k8s.io/v1
+authorization.k8s.io/v1beta1
 autoscaling/v1
+autoscaling/v2beta1
 batch/v1
+batch/v1beta1
+certificates.k8s.io/v1beta1
+compose.docker.com/v1beta1
+compose.docker.com/v1beta2
+events.k8s.io/v1beta1
 extensions/v1beta1
+networking.k8s.io/v1
+policy/v1beta1
+rbac.authorization.k8s.io/v1
+rbac.authorization.k8s.io/v1beta1
+storage.k8s.io/v1
+storage.k8s.io/v1beta1
 v1
 ```
 
 ```
 $ kubectl version
-Client Version: version.Info{Major:"1", Minor:"2", GitVersion:"v1.2.1", GitCommit:"50809107cd47a1f62da362bccefdd9e6f7076145", GitTreeState:"clean"}
-Server Version: version.Info{Major:"1", Minor:"2", GitVersion:"v1.2.1", GitCommit:"50809107cd47a1f62da362bccefdd9e6f7076145", GitTreeState:"clean"}
+Client Version: version.Info{Major:"1", Minor:"9", GitVersion:"v1.9.6", GitCommit:"9f8ebd171479bec0ada837d7ee641dec2f8c6dd1", GitTreeState:"clean", BuildDate:"2018-03-21T15:21:50Z", GoVersion:"go1.9.3", Compiler:"gc", Platform:"darwin/amd64"}
+Server Version: version.Info{Major:"1", Minor:"9", GitVersion:"v1.9.6", GitCommit:"9f8ebd171479bec0ada837d7ee641dec2f8c6dd1", GitTreeState:"clean", BuildDate:"2018-03-21T15:13:31Z", GoVersion:"go1.9.3", Compiler:"gc", Platform:"linux/amd64"}
 ```
 
 For more details about the cluster events happening during the startup process, run:
@@ -87,16 +77,14 @@ For more details about the cluster events happening during the startup process, 
 $ kubectl get events
 ```
 
-<a name="exercise3" />
-
-Exercise 3 of 13 - Node status
+Step 3 of 13 - Node status
 ------------------------------
 
-From the VM named `workshop-second-host`, run one of the previous commands  with the Kubectl option `-s`.
+Run one of the previous commands  with the Kubectl option `-s`.
 Example:
 
 ```
-$ kubectl -s http://localhost:8080 cluster-info
+$ kubectl --server https://localhost:6443 cluster-info
 ```
 
 If the command is successfull, this means that the node is able to establish a communication with the master.
@@ -105,148 +93,443 @@ A better way to confirm this information is to run:
 
 ```
 $ kubectl get nodes
-NAME                   STATUS    AGE
-127.0.0.1              Ready     20m
-workshop-second-host   Ready     10s
+NAME                 STATUS    ROLES     AGE       VERSION
+docker-for-desktop   Ready     master    8m        v1.9.6
 ```
 
-For the following exercises, open a new separated terminal and always keep this command running:
 
-```
-$ watch kubectl get rc,svc,pods --all-namespaces=true -o wide
-```
-
-This command will help us to monitor the state of Kubernetes and all the components running in the cluster.
-
-<a name="exercise4" />
-
-Exercise 4 of 13 - Kubernetes dashboard
+Step 4 of 13 - Kubernetes dashboard
 ---------------------------------------
 
 Run:
 
 ```
-$ docker run\
-    --net=host\
-    --rm\
-    -it\
-        gcr.io/google_containers/kubernetes-dashboard-amd64:v1.1.0-beta3\
-            --apiserver-host http://192.168.33.10:8080
+$ kubectl create -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
+$ kubectl proxy
 ```
 
-And go to `http://localhost:9090/`
+And go to `http://localhost:8001/` to browse all the Kubernetes API endpoints available or directly to ``http://localhost:8001/ui` to visit the UI dashboard:
 
+```
+{
+  "paths": [
+    "/api",
+    "/api/v1",
+    "/apis",
+    "/apis/",
+    "/apis/admissionregistration.k8s.io",
+    "/apis/admissionregistration.k8s.io/v1beta1",
+    "/apis/apiextensions.k8s.io",
+    "/apis/apiextensions.k8s.io/v1beta1",
+    "/apis/apiregistration.k8s.io",
+    "/apis/apiregistration.k8s.io/v1beta1",
+    "/apis/apps",
+    "/apis/apps/v1",
+    "/apis/apps/v1beta1",
+    "/apis/apps/v1beta2",
+    "/apis/authentication.k8s.io",
+    "/apis/authentication.k8s.io/v1",
+    "/apis/authentication.k8s.io/v1beta1",
+    "/apis/authorization.k8s.io",
+    "/apis/authorization.k8s.io/v1",
+    "/apis/authorization.k8s.io/v1beta1",
+    "/apis/autoscaling",
+    "/apis/autoscaling/v1",
+    "/apis/autoscaling/v2beta1",
+    "/apis/batch",
+    "/apis/batch/v1",
+    "/apis/batch/v1beta1",
+    "/apis/certificates.k8s.io",
+    "/apis/certificates.k8s.io/v1beta1",
+    "/apis/compose.docker.com",
+    "/apis/compose.docker.com/v1beta1",
+    "/apis/compose.docker.com/v1beta2",
+    "/apis/events.k8s.io",
+    "/apis/events.k8s.io/v1beta1",
+    "/apis/extensions",
+    "/apis/extensions/v1beta1",
+    "/apis/networking.k8s.io",
+    "/apis/networking.k8s.io/v1",
+    "/apis/policy",
+    "/apis/policy/v1beta1",
+    "/apis/rbac.authorization.k8s.io",
+    "/apis/rbac.authorization.k8s.io/v1",
+    "/apis/rbac.authorization.k8s.io/v1beta1",
+    "/apis/storage.k8s.io",
+    "/apis/storage.k8s.io/v1",
+    "/apis/storage.k8s.io/v1beta1",
+    "/healthz",
+    "/healthz/autoregister-completion",
+    "/healthz/etcd",
+    "/healthz/ping",
+    "/healthz/poststarthook/apiservice-openapi-controller",
+    "/healthz/poststarthook/apiservice-registration-controller",
+    "/healthz/poststarthook/apiservice-status-available-controller",
+    "/healthz/poststarthook/bootstrap-controller",
+    "/healthz/poststarthook/ca-registration",
+    "/healthz/poststarthook/generic-apiserver-start-informers",
+    "/healthz/poststarthook/kube-apiserver-autoregistration",
+    "/healthz/poststarthook/rbac/bootstrap-roles",
+    "/healthz/poststarthook/start-apiextensions-controllers",
+    "/healthz/poststarthook/start-apiextensions-informers",
+    "/healthz/poststarthook/start-kube-aggregator-informers",
+    "/healthz/poststarthook/start-kube-apiserver-informers",
+    "/logs",
+    "/metrics",
+    "/swagger-2.0.0.json",
+    "/swagger-2.0.0.pb-v1",
+    "/swagger-2.0.0.pb-v1.gz",
+    "/swagger.json",
+    "/swaggerapi",
+    "/ui",
+    "/ui/",
+    "/version"
+  ]
+}
+```
 
+Step 5 of 13 - Create a pod, multi-containers load balanced
+-----------------------------------------------------------
 
-<a name="exercise5" />
+For the following exercises, we are going to create a Kubernetes namespace to run our services:
 
-Exercise 5 of 13 - Create a pod, mono-container
------------------------------------------------
+```
+$ kubectl create namespace my-nginx
+```
 
-TODO: this example is not working properly
+And we will watch all the resources (pods, deployments, services) we create within this new Kubernetes namespace. Open a new separated terminal and always keep this command running:
+
+```
+$ watch kubectl get rc,svc,pods -n my-nginx
+```
+
+This command will help us to follow the state of Kubernetes and all the components running in the part of the cluster we are interested in.
 
 Start 1 container in 1 POD:
 
 ```
-$ kubectl run my-nginx --image=nginx --port 9090
-$ kubectl expose pod my-nginx --port=9090 --external-ip=192.168.33.10
+$ kubectl run my-nginx --image=nginx --replicas=3 -n my-nginx --port 80
+deployment "my-nginx" created
 ```
+
+Get information about the deployment:
+
+```
+$ kubectl get deployments my-nginx -n my-nginx
+NAME       DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+my-nginx   3         3         3            3           33s
+
+$ kubectl describe deployments my-nginx -n my-nginx
+Name:                   my-nginx
+Namespace:              my-nginx
+CreationTimestamp:      Tue, 22 May 2018 20:38:05 +1000
+Labels:                 run=my-nginx
+Annotations:            deployment.kubernetes.io/revision=1
+Selector:               run=my-nginx
+Replicas:               3 desired | 3 updated | 3 total | 3 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  1 max unavailable, 1 max surge
+Pod Template:
+  Labels:  run=my-nginx
+  Containers:
+   my-nginx:
+    Image:        nginx
+    Port:         9090/TCP
+    Environment:  <none>
+    Mounts:       <none>
+  Volumes:        <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   my-nginx-65d8484c4b (3/3 replicas created)
+Events:
+  Type    Reason             Age   From                   Message
+  ----    ------             ----  ----                   -------
+  Normal  ScalingReplicaSet  45s   deployment-controller  Scaled up replica set my-nginx-65d8484c4b to 3
+  ```
+
+Display additional information about the replica set:
+
+```
+$ kubectl get replicasets -n my-nginx
+NAME                  DESIRED   CURRENT   READY     AGE
+my-nginx-65d8484c4b   3         3         3         1m
+
+$ kubectl describe replicasets -n my-nginx
+NAME                  DESIRED   CURRENT   READY     AGE
+my-nginx-65d8484c4b   3         3         3         1m
+Williams-MBP-2% kubectl describe replicasets -n my-nginx
+Name:           my-nginx-65d8484c4b
+Namespace:      my-nginx
+Selector:       pod-template-hash=2184040706,run=my-nginx
+Labels:         pod-template-hash=2184040706
+                run=my-nginx
+Annotations:    deployment.kubernetes.io/desired-replicas=3
+                deployment.kubernetes.io/max-replicas=4
+                deployment.kubernetes.io/revision=1
+Controlled By:  Deployment/my-nginx
+Replicas:       3 current / 3 desired
+Pods Status:    3 Running / 0 Waiting / 0 Succeeded / 0 Failed
+Pod Template:
+  Labels:  pod-template-hash=2184040706
+           run=my-nginx
+  Containers:
+   my-nginx:
+    Image:        nginx
+    Port:         9090/TCP
+    Environment:  <none>
+    Mounts:       <none>
+  Volumes:        <none>
+Events:
+  Type    Reason            Age   From                   Message
+  ----    ------            ----  ----                   -------
+  Normal  SuccessfulCreate  1m    replicaset-controller  Created pod: my-nginx-65d8484c4b-zm44x
+  Normal  SuccessfulCreate  1m    replicaset-controller  Created pod: my-nginx-65d8484c4b-w8xnt
+  Normal  SuccessfulCreate  1m    replicaset-controller  Created pod: my-nginx-65d8484c4b-5wbpb
+```
+
+Create service to expose the deployment:
+
+````
+$ kubectl expose deployment my-nginx --port 9000 --target-port 80 --type=LoadBalancer --name=my-nginx -n my-nginx
+service "my-service" exposed
+```
+
+Describe the service created:
+
+```
+$ kubectl get services my-nginx -n my-nginx
+NAME       TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+my-nginx   LoadBalancer   10.97.113.142   localhost     9000:31614/TCP   22s
+
+$ kubectl describe services my-nginx -n my-nginx
+Name:                     my-nginx
+Namespace:                my-nginx
+Labels:                   run=my-nginx
+Annotations:              <none>
+Selector:                 run=my-nginx
+Type:                     LoadBalancer
+IP:                       10.97.113.142
+LoadBalancer Ingress:     localhost
+Port:                     <unset>  9000/TCP
+TargetPort:               80/TCP
+NodePort:                 <unset>  31614/TCP
+Endpoints:                10.1.0.24:80,10.1.0.25:80,10.1.0.26:80
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Events:                   <none>
+```
+
+`localhost` is the external IP of the cluster.
+`9000` is the port exposed by the cluster and points to internal nginx instances running on 80
 
 Inspect the POD configuration / status:
 
 ```
-$ kubectl describe pod my-nginx
-Name:		my-nginx-erhhc
-Namespace:	default
-Node:		127.0.0.1/127.0.0.1
-Start Time:	Fri, 10 Jun 2016 15:11:31 +1000
-Labels:		run=my-nginx
-Status:		Running
-IP:		172.17.0.2
-Controllers:	ReplicationController/my-nginx
-Containers:
-  my-nginx:
-    Container ID:	docker://655f3949fa48277a38d970fd4dfc980415a57ec9368cb81fa2eb30c107fcee16
-    Image:		nginx
-    Image ID:		docker://sha256:0d409d33b27e47423b049f7f863faa08655a8c901749c2b25b93ca67d01a470d
-    Port:		80/TCP
-    QoS Tier:
-      cpu:		BestEffort
-      memory:		BestEffort
-    State:		Running
-      Started:		Fri, 10 Jun 2016 15:11:53 +1000
-    Ready:		True
-    Restart Count:	0
-    Environment Variables:
-Conditions:
-  Type		Status
-  Ready 	True
-No volumes.
-Events:
-  FirstSeen	LastSeen	Count	From			SubobjectPath				Type		Reason		Message
-  ---------	--------	-----	----			-------------				--------	------		-------
-  16m		16m		1	{scheduler }									scheduled	Successfully assigned my-nginx-erhhc to 127.0.0.1
-  16m		16m		1	{kubelet 127.0.0.1}	implicitly required container POD			pulled		Pod container image "gcr.io/google_containers/pause:0.8.0" already present on machine
-  16m		16m		1	{kubelet 127.0.0.1}	implicitly required container POD			created		Created with docker id 1c67430bf3d2
-  16m		16m		1	{kubelet 127.0.0.1}	implicitly required container POD			started		Started with docker id 1c67430bf3d2
-  16m		16m		1	{kubelet 127.0.0.1}								failedSync	Error syncing pod, skipping: DNS ResolvConfPath specified but does not exist. It could not be updated: /mnt/sda1/var/lib/docker/containers/1c67430bf3d2d238f2b10dcd139730059e89cc47fe43143011dc8d0af37ad453/resolv.conf
-  16m		16m		1	{kubelet 127.0.0.1}	spec.containers{my-nginx}				pulled		Successfully pulled image "nginx"
-  16m		16m		1	{kubelet 127.0.0.1}	spec.containers{my-nginx}				created		Created with docker id 655f3949fa48
-  16m		16m		1	{kubelet 127.0.0.1}	spec.containers{my-nginx}				started		Started with docker id 655f3949fa48
+$ kubectl get pods -n my-nginx
+NAME                        READY     STATUS    RESTARTS   AGE
+my-nginx-65d8484c4b-5wbpb   1/1       Running   0          7m
+my-nginx-65d8484c4b-w8xnt   1/1       Running   0          7m
+my-nginx-65d8484c4b-zm44x   1/1       Running   0          7m
 ```
 
-By reading these details, we understand that Kubernetes:
-* created a new container with the ID `655f3949fa48` - see Event sections
-* exposed the ports' container on 80/TCP
-* affected an internal IP for the POD inside the cluster
-* the base image used is `0d409d33b27e47423b049f7f863faa08655a8c901749c2b25b93ca67d01a470d` which is our nginx image (see `docker images | grep nginx`)
+Access the nginx welcome page with: 
 
-Access the application by visiting: `http://localhost:9090`
+```
+$ curl http://localhost:9000
+```
 
-<a name="exercise6" />
+Delete all nginx resources in the cluster:
 
-Exercise 6 of 13 - Create a pod, multi containers
--------------------------------------------------
+```
+kubectl delete svc,po,deploy my-nginx -n my-nginx
+```
+
+Step 6 of 13 - Create a pod, multi containers, use a template
+-------------------------------------------------------------
+
+Similarly to the previous step, create a Kubernetes namespace:
+
+```
+$ kubectl create namespace my-app
+$ watch kubectl get rc,svc,pods -n my-app
+```
 
 Start N containers in 1 POD
 
 ```
-$ kubectl delete pod busmeme
-$ kubectl create -f ./kubernetes/kube-templates/pods-multihost/busmeme-rc.yml
-$ kubectl describe pod busmeme
+$ kubectl create -f ./kubernetes/kube-templates/pods-multihost/busmeme-rc.yml -n my-app
+replicationcontroller "busmeme-rc" created
+
+$ kubectl describe pod busmeme -n my-app
+Name:           busmeme-rc-2x46l
+Namespace:      my-app
+Node:           docker-for-desktop/192.168.65.3
+Start Time:     Tue, 22 May 2018 21:08:02 +1000
+Labels:         name=web
+Annotations:    <none>
+Status:         Pending
+IP:
+Controlled By:  ReplicationController/busmeme-rc
+Containers:
+  mongo:
+    Container ID:
+    Image:          mongo
+    Image ID:
+    Port:           27017/TCP
+    State:          Waiting
+      Reason:       ContainerCreating
+    Ready:          False
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /data/db from mongo-persistent-storage (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-2h5rd (ro)
+  web:
+    Container ID:
+    Image:          minillinim/busmemegenerator
+    Image ID:
+    Port:           3000/TCP
+    State:          Waiting
+      Reason:       ContainerCreating
+    Ready:          False
+    Restart Count:  0
+    Environment:
+      NODE_ENV:        production
+      TL_USER:         uSERnAME
+      TL_PASSWORD:     pASSwORD
+      PORT:            3000
+      BM_MONGODB_URI:  mongodb://localhost/app-toto
+      BM_ADMIN_TOKEN:  test
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-2h5rd (ro)
+Conditions:
+  Type           Status
+  Initialized    True
+  Ready          False
+  PodScheduled   True
+Volumes:
+  mongo-persistent-storage:
+    Type:          HostPath (bare host directory volume)
+    Path:          /data/db
+    HostPathType:
+  default-token-2h5rd:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  default-token-2h5rd
+    Optional:    false
+QoS Class:       BestEffort
+Node-Selectors:  <none>
+Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
+                 node.kubernetes.io/unreachable:NoExecute for 300s
+Events:
+  Type    Reason                 Age   From                         Message
+  ----    ------                 ----  ----                         -------
+  Normal  Scheduled              13s   default-scheduler            Successfully assigned busmeme-rc-2x46l to docker-for-desktop
+  Normal  SuccessfulMountVolume  13s   kubelet, docker-for-desktop  MountVolume.SetUp succeeded for volume "mongo-persistent-storage"
+  Normal  SuccessfulMountVolume  13s   kubelet, docker-for-desktop  MountVolume.SetUp succeeded for volume "default-token-2h5rd"
+  Normal  Pulling                11s   kubelet, docker-for-desktop  pulling image "mongo"
+
+Name:           busmeme-rc-ssjrx
+Namespace:      my-app
+Node:           <none>
+Labels:         name=web
+Annotations:    <none>
+Status:         Pending
+IP:
+Controlled By:  ReplicationController/busmeme-rc
+Containers:
+  mongo:
+    Image:        mongo
+    Port:         27017/TCP
+    Environment:  <none>
+    Mounts:
+      /data/db from mongo-persistent-storage (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-2h5rd (ro)
+  web:
+    Image:  minillinim/busmemegenerator
+    Port:   3000/TCP
+    Environment:
+      NODE_ENV:        production
+      TL_USER:         uSERnAME
+      TL_PASSWORD:     pASSwORD
+      PORT:            3000
+      BM_MONGODB_URI:  mongodb://localhost/app-toto
+      BM_ADMIN_TOKEN:  test
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-2h5rd (ro)
+Conditions:
+  Type           Status
+  PodScheduled   False
+Volumes:
+  mongo-persistent-storage:
+    Type:          HostPath (bare host directory volume)
+    Path:          /data/db
+    HostPathType:
+  default-token-2h5rd:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  default-token-2h5rd
+    Optional:    false
+QoS Class:       BestEffort
+Node-Selectors:  <none>
+Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
+                 node.kubernetes.io/unreachable:NoExecute for 300s
+Events:
+  Type     Reason            Age               From               Message
+  ----     ------            ----              ----               -------
+  Warning  FailedScheduling  6s (x5 over 13s)  default-scheduler  0/1 nodes are available: 1 PodFitsHostPorts.
 ```
 
-<div class="info-box information">
-    <ul>
-        <li>All the containers inside a POD share the same network network</li>
-        <li>Within a Pod, each container can reach an other container ports on localhost</li>
-    </ul>
-</div>
+All the containers inside a POD share the same network network.
+Within a Pod, each container can reach an other container ports on localhost.
 
 Expose the POD outside the cluster:
 
 ```
-$ kubectl create -f ./kubernetes/kube-templates/pods-multihost/busmeme-service.yml
+$ kubectl create -f ./kubernetes/kube-templates/pods-multihost/busmeme-service.yml -n my-app
+service "busmeme-service" created
 ```
 
-Visit [http://192.168.33.10:30061/](http://192.168.33.10:30061/)
+Describe the service created:
 
-<a name="exercise7" />
+```
+$ kubectl describe svc busmeme-service -n my-app
+Name:                     busmeme-service
+Namespace:                my-app
+Labels:                   name=web
+Annotations:              <none>
+Selector:                 name=web
+Type:                     NodePort
+IP:                       10.102.226.221
+LoadBalancer Ingress:     localhost
+Port:                     <unset>  3000/TCP
+TargetPort:               3000/TCP
+NodePort:                 <unset>  30061/TCP
+Endpoints:                10.1.0.28:3000
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Events:                   <none>
+```
 
-Exercise 7 of 13 - Debugging
+Visit [http://localhost:30061/](http://localhost:30061/)
+
+
+Step 7 of 13 - Debugging
 ----------------------------
 
 Show the logs of each container running in the POD:
 
 ```
-$ kubectl logs [POD-NAME] mongo
-$ kubectl logs [POD-NAME] web
+$ kubectl logs [POD-NAME] mongo -n my-app
+$ kubectl logs [POD-NAME] web -n my-app
 ```
 
 Attach the standard out (stdout) of a container:
 
 ```
-kubectl attach -i [pod-name]
+kubectl attach -i [POD-NAME]
 ```
 
 Execute a command inside a POD:
@@ -257,81 +540,108 @@ $ kubectl exec [POD-NAME] ls
 $ kubectl exec [POD-NAME] echo $PATH
 ```
 
-<a name="exercise8" />
 
-Exercise 8 of 13 - Update a POD
+
+Step 8 of 13 - Update a POD
 -------------------------------
 
-From the [Kubernetes dashboard](http://localhost:9090), try to change the Docker image.
-After an automatic redeployment, the change should be reflected "immedialy".
+From the Kubernetes dashboard, try to change the Docker image.
+After an automatic redeployment, the change should be reflected "immediately".
 
 Apply now the same change by editing the file `busmeme-rc.yml` 
 
 ```
-$ kubectl apply -f./kubernetes/kube-templates/pods-multihost/busmeme-rc.yml
+$ kubectl apply -f./kubernetes/kube-templates/pods-multihost/busmeme-rc.yml -n my-app
 ```
 
 Note: pod updates may not change fields other than `containers[*].image` or `spec.activeDeadlineSeconds`
 
 
-<a name="exercise9" />
-
-Exercise 9 of 13 - Rolling updates and rollbacks
+Step 9 of 13 - Rolling updates and rollbacks
 ------------------------------------------------
 
-    0. Create a new service for the application `LBAPP`
+Create a new service for the application `LBAPP`
 
 ```
-kubectl create -f lbapp-svc.yml
+$ kubectl create -f kubernetes/kube-templates/rolling-update/lbapp-svc.yml -n my-app
+service "lbapp-service" created
 ```
 
-    1. Release 1
+Release 1:
 
 ```
-$ kubectl create -f lbapp-v1-deployment.yml
-$ kubectl rollout history deployment/lbapp-deployment
+$ kubectl create -f kubernetes/kube-templates/rolling-update/lbapp-v1-deployment.yml -n my-app
+deployment "lbapp-deployment" created
+
+$ kubectl rollout history deployment/lbapp-deployment -n my-app
+deployments "lbapp-deployment"
+REVISION  CHANGE-CAUSE
+1         <none>
 ```
 
-The application LBAPP (accessible on http://localhost:9999) should display the current version of the application (version 1).
+The application LBAPP should display the current version of the application (version 1)
 
-    2. Release 2 (update)
+```
+$ curl http://localhost:30062
+LB Application - version :1
+```
+
+Release 2 (update) - change of label:
  
-Change the label:
+```
+$ kubectl apply -f kubernetes/kube-templates/rolling-update/lbapp-v2-deployment.yml -n my-app
+deployment "lbapp-deployment" configured
+
+$ kubectl rollout history deployment/lbapp-deployment -n my-app
+deployments "lbapp-deployment"
+REVISION  CHANGE-CAUSE
+1         <none>
+2         <none>
+```
+
+The application LBAPP should display the current version of the application (version 2).
 
 ```
-$ kubectl apply -f lbapp-v2-deployment.yml
-$ kubectl rollout history deployment/lbapp-deployment
+$ curl http://localhost:30062
+LB Application - version :2
 ```
 
-The application LBAPP (accessible on http://localhost:9999) should display the current version of the application (version 2).
-
-    3. Rollback
+Rollback
 
 ```
-$ kubectl rollout undo deployment/lbapp-deployment --to-revision=1
+$ kubectl rollout undo deployment/lbapp-deployment --to-revision=1 -n my-app
+deployment "lbapp-deployment"
 ```
 The application LBAPP has been rollbacked to first version. Now the application should display version 1 as the current version.
 
-<a name="exercise10" />
+```
+$ curl http://localhost:30062
+LB Application - version :1
+```
 
-Exercise 10 of 13 - Load balancing
+
+Step 10 of 13 - Load balancing
 ----------------------------------
 
 Check endpoints:
 
 ```
-$ kubectl describe svc busmeme-service
-Name:			busmeme-service
-Namespace:		default
-Labels:			name=web
-Selector:		name=web
-Type:			NodePort
-IP:			10.0.0.48
-Port:			<unset>	4000/TCP
-NodePort:		<unset>	30061/TCP
-Endpoints:		10.1.14.2:3000,10.1.55.2:3000
-Session Affinity:	None
-No events.
+$ kubectl describe svc busmeme-service -n my-app
+Name:                     busmeme-service
+Namespace:                my-app
+Labels:                   name=web
+Annotations:              <none>
+Selector:                 name=web
+Type:                     NodePort
+IP:                       10.102.226.221
+LoadBalancer Ingress:     localhost
+Port:                     <unset>  3000/TCP
+TargetPort:               3000/TCP
+NodePort:                 <unset>  30061/TCP
+Endpoints:                10.1.0.28:3000
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Events:                   <none>
 ```
 
 The presence of the attributes `replicas: 2` in the template `lbapp-v1-deployment.yml` ensures that the cluster always run 2 identical PODS containing our application.
@@ -344,39 +654,49 @@ Run the following command to delete one of the POD:
 $ kubectl delete pod [POD-NAME]
 ```
 
-While this pod is terminating, an other one is spawning, Kubernetes being responsible to maintain the desirated state of the cluster.
+While this pod is terminating, an other one is spawning, Kubernetes being responsible to maintain the desired state of the cluster.
 
 The POD selection is controlled / load-balanced by Kubernetes depending on the type of POD configured.
 
 The application LBAPP should display randomly these endpoints, which demonstrate that our 2 PODs are in use.
 
-<a name="exercise11" />
 
-Exercise 11 of 13 - Secrets
+
+Step 11 of 13 - Secrets
 ---------------------------
 
 ```
-$ kubectl create secret generic lbapp-db --from-literal='lbapp-dbuser=produser' --from-literal='lbapp-dbpwd=twkubernetes'
-$ kubectl get secrets
+$ kubectl create secret generic lbapp-db --from-literal='lbapp-dbuser=produser' -n my-app --from-literal='lbapp-dbpwd=twkubernetes'
+secret "lbapp-db" created
+
+$ kubectl get secrets -n my-app 
+NAME                  TYPE                                  DATA      AGE
+default-token-2h5rd   kubernetes.io/service-account-token   3         2h
+lbapp-db              Opaque                                2         1m
 ```
 
 To demonstrate that the secrets have been transmitted to the POD, restart the POD ...
 
 ```
-$ kubectl create -f ./kubernetes/kube-templates/secrets/lb-app.yml
-
+$ kubectl replace --force -f ./kubernetes/kube-templates/secrets/lb-app.yml -n my-app 
+service "lbapp-service" configured
+Warning: kubectl apply should be used on resource created by either kubectl create --save-config or kubectl apply
+replicationcontroller "lbapp-rc" configured
 ```
 
-The application LBAPP (accessible on http://localhost:9999) should display the secrets in plain text.
+The application LBAPP should display the secrets in plain text.
 
+```
+$ curl http://localhost:30062
+LB Application - version :undefined
+-- Secret found!' username: produser; password: twkubernetes%
+```
 
-<a name="exercise12" />
-
-Exercise 12 of 13 - Self-healing
+Step 12 of 13 - Self-healing
 --------------------------------
 
 ```
-$ kubectl create -f lb-app-probe.yml
+$ kubectl apply -f ./kubernetes/kube-templates/self-healing/lb-app-probe.yml -n my-app
 ```
 
 Check the status of one of the pods
@@ -449,9 +769,9 @@ File `/tmp/lbapp.lock` is intentionally missing. As a result, the pod is flagged
 ```
 
 
-<a name="exercise13" />
 
-Exercise 13 of 13 - Add-ons
+
+Step 13 of 13 - Add-ons
 ---------------------------
 
 https://github.com/kubernetes/kubernetes/tree/master/cluster/addons
